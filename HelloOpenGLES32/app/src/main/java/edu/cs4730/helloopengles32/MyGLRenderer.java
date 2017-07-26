@@ -21,6 +21,7 @@ import javax.microedition.khronos.opengles.GL10;
 import android.opengl.GLES32;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.os.SystemClock;
 import android.util.Log;
 
 /**
@@ -50,7 +51,7 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
         // Set the background frame color
-        GLES32.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES32.glClearColor(0.0f, 1.0f, 1.0f, 1.0f);
 
         mTriangle = new Triangle();
         mSquare   = new Square();
@@ -72,6 +73,8 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // Draw square
         mSquare.draw(mMVPMatrix);
 
+        logFrameRate();
+
         // Create a rotation for the triangle
 
         // Use the following code to generate constant rotation.
@@ -79,15 +82,17 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
         // long time = SystemClock.uptimeMillis() % 4000L;
         // float angle = 0.090f * ((int) time);
 
-        Matrix.setRotateM(mRotationMatrix, 0, mAngle, 0, 0, 1.0f);
+        //Matrix.setRotateM(mRotationMatrix, 0, 0, 0, 0, 1.0f); //mAngle
 
         // Combine the rotation matrix with the projection and camera view
         // Note that the mMVPMatrix factor *must be first* in order
         // for the matrix multiplication product to be correct.
-        Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
+
+        //Matrix.multiplyMM(scratch, 0, mMVPMatrix, 0, mRotationMatrix, 0);
 
         // Draw triangle
-        mTriangle.draw(scratch);
+
+        //mTriangle.draw(scratch);
     }
 
     @Override
@@ -161,6 +166,22 @@ public class MyGLRenderer implements GLSurfaceView.Renderer {
      */
     public void setAngle(float angle) {
         mAngle = angle;
+    }
+
+    //###################Utils################### FPS Detector;
+    private long startTimeMs;
+    private int frameCount;
+
+    private void logFrameRate(){
+        long elapsedRealtimeMs = SystemClock.elapsedRealtime();
+        double elapsedSeconds = (elapsedRealtimeMs - startTimeMs)/1000.0;
+
+        if(elapsedSeconds >= 1.0){
+            Log.v(TAG,frameCount/elapsedSeconds + "fps");
+            startTimeMs = SystemClock.elapsedRealtime();
+            frameCount = 0;
+        }
+        frameCount ++;
     }
 
 }
